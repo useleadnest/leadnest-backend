@@ -17,7 +17,7 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"service": "leadnest-backend", "status": "ok"}
+    return {"service": "leadnest-backend-2", "status": "ok"}
 
 @app.get("/health")
 def health():
