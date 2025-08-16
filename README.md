@@ -1,15 +1,9 @@
-# LeadNest Backend Starter
+ALLOWED_ORIGINS=https://useleadnest.com,https://www.useleadnest.com,http://localhost:3000
 
-Minimal FastAPI service ready for Render.
+STRIPE_SECRET_KEY=sk_live_xxx_or_sk_test_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx       # from Stripe webhook “Signing secret”
+STRIPE_PUBLISHABLE_KEY=pk_live_xxx_or_pk_test_xxx  # (not required on server, optional)
 
-## Environment variables
-- sk-...KLkA
-- pk_live_51MCypqHB0ePqDkxIUcJlpqex5e4hRXKePc6mCvjHZ0qzXrmP84eCUfwFeYgINrgoDm1j2jnD1mRz8UF6WX66T5BB00LS3qY1fm
-- sk_live_...uu5l
-- STRIPE_WEBHOOK_SECRET (fill after creating the Stripe webhook)
-- ALLOWED_ORIGINS (useleadnest.com)
-
-## Health
-- `/` root
-- `/health` health check
-- `/stripe/webhook` placeholder endpoint
+JWT_SECRET=generate-a-long-random-string
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require
+ENV=production
