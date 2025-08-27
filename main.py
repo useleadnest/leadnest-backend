@@ -4,6 +4,9 @@ from datetime import datetime
 import logging
 import os
 import json
+import stripe
+from pydantic import BaseModel
+from typing import Literal
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -20,7 +23,21 @@ app.add_middleware(
         "https://www.useleadnest.com", 
         "http://localhost:3000",
         "http://localhost:5173"
-    ],
+  
+    # ---- Stripe init & config ----
+stripe.api_key = os.environ["STRIPE_SECRET_KEY"]  # sk_test_... or sk_live_...
+
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://useleadnest.com")
+
+PRICE_MAP = {
+    "starter": os.environ["STRIPE_PRICE_STARTER"],     # price_...
+    "pro": os.environ["STRIPE_PRICE_PRO"],             # price_...
+    "enterprise": os.environ["STRIPE_PRICE_ENTERPRISE"]# price_...
+}
+# ------------------------------
+
+    
+   ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,6 +59,36 @@ def read_root():
         "service": "leadnest-api", 
         "version": "1.0.0",
         "timestamp": datetime.now().isoformat()
+    
+    @app.post("/api/billing/create-checkout-session")
+async def create_checkout_session(plan: PlanRequest):
+    """
+    Creates a Stripe Checkout Session for a subscription based on tier.
+    Body example: { "tier": "pro" }
+    Returns: { "url": "https://checkout.stripe.com/..." }
+    """
+    try:
+        price_id = PRICE_MAP[plan.tier]
+
+        session = stripe.checkout.Session.create(
+            mode="subscription",
+            line_items=[{"price": price_id, "quantity": 1}],
+            success_url=f"{PUBLIC_BASE_URL}/billing/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{PUBLIC_BASE_URL}/billing/cancel",
+            automatic_tax={"enabled": True},
+            allow_promotion_codes=True,
+        )
+        return {"url": session.url}
+    except Exception as e:
+        logger.error(f"Checkout session error: {e}")
+        # Keep the response simple for the client; check logs for the details
+        return {"error": "checkout_session_failed"}
+
+    
+    
+    
+    
+    
     }
 
 @app.get("/health")
@@ -121,3 +168,4 @@ async def debug_info():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
