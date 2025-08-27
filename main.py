@@ -60,6 +60,9 @@ def read_root():
         "version": "1.0.0",
         "timestamp": datetime.now().isoformat()
     
+  class PlanRequest(BaseModel):
+    tier: Literal["starter", "pro", "enterprise"]
+
     @app.post("/api/billing/create-checkout-session")
 async def create_checkout_session(plan: PlanRequest):
     """
@@ -85,11 +88,7 @@ async def create_checkout_session(plan: PlanRequest):
         return {"error": "checkout_session_failed"}
 
     
-    
-    
-    
-    
-    }
+        }
 
 @app.get("/health")
 async def health():
@@ -168,4 +167,5 @@ async def debug_info():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
